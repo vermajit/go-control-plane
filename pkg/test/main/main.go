@@ -24,7 +24,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"runtime/pprof"
 	"time"
 
 	"github.com/pkg/profile"
@@ -284,20 +283,6 @@ func main() {
 		if !pass {
 			log.Printf("failed all requests in a run %d\n", i)
 			os.Exit(1)
-		}
-	}
-
-	if pprofEnabled {
-		for _, prof := range []string{"block", "goroutine", "mutex"} {
-			p := pprof.Lookup(prof)
-			filePath := fmt.Sprintf("%s_profile_%s.pb.gz", prof, mode)
-			log.Printf("storing %s profile for %s in %s", prof, mode, filePath)
-			f, err := os.Create(filePath)
-			if err != nil {
-				log.Fatalf("could not create %s profile %s: %s", prof, filePath, err)
-			}
-			p.WriteTo(f, 1) // nolint:errcheck
-			f.Close()
 		}
 	}
 
