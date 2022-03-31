@@ -15,6 +15,7 @@
 package cache
 
 import (
+	"sort"
 	"sync"
 	"time"
 
@@ -65,7 +66,9 @@ type statusInfo struct {
 	node *core.Node
 
 	// watches are indexed channels for the response watches and the original requests.
-	watches map[int64]ResponseWatch
+	// watches map[int64]ResponseWatch
+	watches        map[int64]ResponseWatch
+	orderedWatches keys
 
 	// deltaWatches are indexed channels for the delta response watches and the original requests
 	deltaWatches map[int64]DeltaResponseWatch
@@ -105,9 +108,10 @@ type DeltaResponseWatch struct {
 // newStatusInfo initializes a status info data structure.
 func newStatusInfo(node *core.Node) *statusInfo {
 	out := statusInfo{
-		node:         node,
-		watches:      make(map[int64]ResponseWatch),
-		deltaWatches: make(map[int64]DeltaResponseWatch),
+		node:           node,
+		watches:        make(map[int64]ResponseWatch),
+		orderedWatches: make(keys, 0),
+		deltaWatches:   make(map[int64]DeltaResponseWatch),
 	}
 	return &out
 }
@@ -154,4 +158,25 @@ func (info *statusInfo) setDeltaResponseWatch(id int64, drw DeltaResponseWatch) 
 	info.mu.Lock()
 	defer info.mu.Unlock()
 	info.deltaWatches[id] = drw
+}
+
+// right now this is a noop but will need to set the map in an order
+func (info *statusInfo) orderResponseWatches(order bool) {
+	// 0 out our watch list cause watches get deleted in the map.
+	info.orderedWatches = make(keys, 0)
+
+	// This runs in O(n) which could become problematic when we have an extrclemely high watch count.
+	// TODO(alec): revisit this and optimize for speed.
+	for id, watch := range info.watches {
+		info.orderedWatches = append(info.orderedWatches, key{
+			ID:      id,
+			TypeURL: watch.Request.TypeUrl,
+		})
+	}
+
+	// Sort our list which we can use in the SetSnapshot functions.
+	// This is only run when we enable ADS on the cache.
+	if order {
+		sort.Sort(info.orderedWatches)
+	}
 }
