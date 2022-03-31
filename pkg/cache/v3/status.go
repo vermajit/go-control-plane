@@ -160,12 +160,14 @@ func (info *statusInfo) setDeltaResponseWatch(id int64, drw DeltaResponseWatch) 
 	info.deltaWatches[id] = drw
 }
 
-// right now this is a noop but will need to set the map in an order
+// orderResponseWatches will track a list of watch keys and order them if
+// true is passed.
 func (info *statusInfo) orderResponseWatches(order bool) {
 	// 0 out our watch list cause watches get deleted in the map.
 	info.orderedWatches = make(keys, 0)
 
-	// This runs in O(n) which could become problematic when we have an extrclemely high watch count.
+	// This runs in O(n) which could become problematic when we have an extremely high watch count.
+	// We also do a lot of appends here which could be expensive.
 	// TODO(alec): revisit this and optimize for speed.
 	for id, watch := range info.watches {
 		info.orderedWatches = append(info.orderedWatches, key{
