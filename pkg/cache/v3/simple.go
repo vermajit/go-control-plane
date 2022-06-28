@@ -216,7 +216,7 @@ func (cache *snapshotCache) sendHeartbeats(ctx context.Context, node string) {
 	}
 }
 
-// SetSnapshotCacheContext updates a snapshot for a node.
+// SetSnapshotCache updates a snapshot for a node.
 func (cache *snapshotCache) SetSnapshot(ctx context.Context, node string, snapshot ResourceSnapshot) error {
 	cache.mu.Lock()
 	defer cache.mu.Unlock()
@@ -230,9 +230,11 @@ func (cache *snapshotCache) SetSnapshot(ctx context.Context, node string, snapsh
 		defer info.mu.Unlock()
 
 		// If ADS is enabled we need to order response watches so we guarantee
-		// sending them in the correct order since Go's default implementation
+		// sending them in the correct order. Go's default implementation
 		// of maps are randomized order when ranged over.
-		info.orderResponseWatches(cache.ads)
+		if cache.ads {
+			info.orderResponseWatches(cache.ads)
+		}
 
 		for _, key := range info.orderedWatches {
 			watch := info.watches[key.ID]
@@ -284,7 +286,7 @@ func (cache *snapshotCache) SetSnapshot(ctx context.Context, node string, snapsh
 	return nil
 }
 
-// GetSnapshots gets the snapshot for a node, and returns an error if not found.
+// GetSnapshot gets the snapshot for a node, and returns an error if not found.
 func (cache *snapshotCache) GetSnapshot(node string) (ResourceSnapshot, error) {
 	cache.mu.RLock()
 	defer cache.mu.RUnlock()
@@ -324,7 +326,7 @@ func superset(names map[string]bool, resources map[string]types.ResourceWithTTL)
 	return nil
 }
 
-// CreateWatch returns a watch for an xDS request.
+// CreateWatch returns an open watch for an xDS request.
 func (cache *snapshotCache) CreateWatch(request *Request, streamState stream.StreamState, value chan Response) func() {
 	nodeID := cache.hash.ID(request.Node)
 
