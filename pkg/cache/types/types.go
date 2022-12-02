@@ -48,5 +48,6 @@ const (
 	Secret
 	Runtime
 	ExtensionConfig
+	FilterChain
 	UnknownType // token to count the total number of supported types
 )

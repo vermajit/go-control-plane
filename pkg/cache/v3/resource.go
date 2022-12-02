@@ -53,6 +53,8 @@ func GetResponseType(typeURL resource.Type) types.ResponseType {
 		return types.Runtime
 	case resource.ExtensionConfigType:
 		return types.ExtensionConfig
+	case resource.FilterChainType:
+		return types.FilterChain
 	}
 	return types.UnknownType
 }

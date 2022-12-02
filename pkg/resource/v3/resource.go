@@ -25,7 +25,7 @@ const (
 	ExtensionConfigType = APITypePrefix + "envoy.config.core.v3.TypedExtensionConfig"
 	RuntimeType         = APITypePrefix + "envoy.service.runtime.v3.Runtime"
 	ThriftRouteType     = APITypePrefix + "envoy.extensions.filters.network.thrift_proxy.v3.RouteConfiguration"
-
+	FilterChainType     = APITypePrefix + "envoy.config.listener.v3.FilterChain"
 	// AnyType is used only by ADS
 	AnyType = ""
 )
@@ -40,6 +40,7 @@ const (
 	FetchSecrets          = "/v3/discovery:secrets" //nolint:gosec
 	FetchRuntimes         = "/v3/discovery:runtime"
 	FetchExtensionConfigs = "/v3/discovery:extension_configs"
+	FetchFilterChains     = "/v3/discovery:filter_chains"
 )
 
 // DefaultAPIVersion is the api version

@@ -40,6 +40,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 )
 
+// AJIT
 // Server is a collection of handlers for streaming discovery requests.
 type Server interface {
 	endpointservice.EndpointDiscoveryServiceServer
